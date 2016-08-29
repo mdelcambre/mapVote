@@ -1,0 +1,41 @@
+<!doctype html>
+<html>
+  <head>
+    <title>Destiny Map Vote</title>
+    <style>
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      body { font: 13px Helvetica, Arial; }
+      form { background: #000; padding: 3px; position: fixed; bottom: 0; width: 100%; }
+      form input { border: 0; padding: 10px; width: 90%; margin-right: .5%; }
+      form button { width: 9%; background: rgb(130, 224, 255); border: none; padding: 10px; }
+      #messages { list-style-type: none; margin: 0; padding: 0; }
+    </style>
+  </head>
+  <body>
+    <script src="https://cdn.socket.io/socket.io-1.2.0.js"></script>
+    <script src="http://code.jquery.com/jquery-1.11.1.js"></script>
+    <script>
+      var socket = io();
+      socket.on('connect', function(){
+          var path = window.location.pathname;
+          var teamId = path.slice(1, path.indexOf('/', 1));
+          socket.emit('join', teamId);
+      });
+
+      socket.on('joined', function(data){
+          console.log("JOINED");
+          console.log(data);
+      });
+
+      socket.on('ban', function(data){
+          console.log(data.team + "has banned" + data.ban);
+      });
+
+
+      socket.on('done', function(data){
+          console.log("the map has been chosen" + data.map);
+      });
+
+    </script>
+  </body>
+</html>
