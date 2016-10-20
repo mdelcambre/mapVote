@@ -8,27 +8,40 @@ app.get('/', function(req, res){
 	  res.sendFile(__dirname + '/html/index.html');
 });
 
-app.get('/draft/:teamId/:teamName', handleDraft);
-app.get('/draft/:teamId', handleDraft);
+app.get('/draft/:draftId/:teamId', function(req, res){
+app.get('/draft/:draftId/', handleDraft);
 
 function handleDraft(req, res){
-	var teamId = req.params.teamId
-	drafterType = storage.getTeamType(teamId);
-	if (drafterType == 'drafter' || drafterType == 'obs'){
+    try {
+        var teamID = req.params.teamId;
+    } catch(err) {
+        var teamID = null;
+    }
+    var draftID = req.params.draftId;
+    if (storage.getTeamType(draftID, teamID)){
 		res.sendFile(__dirname + '/html/draft.html');
 	} else {
 		res.sendFile(__dirname + '/html/index.html');
 	}
-}
+});
+
 
 
 io.on('connection', function(socket){
 
-	socket.on('join', function(teamId) {
+	socket.on('join', function(draftID, teamID) {
 		console.log(teamId);
-		socket.room = teamId;
-		socket.join(teamId);
-		socket.emit('joined', storage.getDraftState(teamId);
+        var teamType = storage.getTeamType(draftID, teamID);
+		if (teamType == 'drafter') {
+            socket.join(teamID);
+        } else if (teamType == 'obs') {
+		    socket.join(draftID);
+        } else {
+            return false
+        }
+        socket.team = teamID;
+        socket.draft = draftID
+		socket.emit('joined', storage.getDraftState(socket.draft, socket.team);
 	}); //on join
 
 
